@@ -9,7 +9,9 @@ import {
   Users, 
   LogOut,
   Menu,
-  X
+  X,
+  FileText,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -106,8 +108,31 @@ export const AppSidebar = () => {
             })}
           </nav>
 
+          {/* Legal Links */}
+          <div className="border-t border-border pt-3 mb-3">
+            <div className="flex gap-2 px-3">
+              <NavLink
+                to="/terms"
+                onClick={() => setIsOpen(false)}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <FileText className="h-3 w-3" />
+                Términos
+              </NavLink>
+              <span className="text-muted-foreground">·</span>
+              <NavLink
+                to="/privacy"
+                onClick={() => setIsOpen(false)}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <Shield className="h-3 w-3" />
+                Privacidad
+              </NavLink>
+            </div>
+          </div>
+
           {/* User Section */}
-          <div className="border-t border-border pt-4 mt-4">
+          <div className="border-t border-border pt-4">
             <div className="flex items-center gap-3 px-3 py-2 mb-2">
               <Avatar className="h-10 w-10 ring-2 ring-primary/20">
                 <AvatarImage src={profile?.avatar_url || ''} alt={profile?.name} />

@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { AvatarUpload } from '@/components/AvatarUpload';
 
 const Profile = () => {
   const { id } = useParams<{ id: string }>();
@@ -129,10 +130,18 @@ const Profile = () => {
         <div className="h-32 bg-gradient-to-r from-primary to-accent" />
         <div className="px-6 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12">
-            <Avatar className="h-24 w-24 ring-4 ring-card">
-              <AvatarImage src={profile.avatar_url || ''} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">{profile.name?.charAt(0)}</AvatarFallback>
-            </Avatar>
+            {isOwnProfile ? (
+              <AvatarUpload
+                currentAvatarUrl={profile.avatar_url}
+                userName={profile.name}
+                size="lg"
+              />
+            ) : (
+              <Avatar className="h-24 w-24 ring-4 ring-card">
+                <AvatarImage src={profile.avatar_url || ''} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-2xl">{profile.name?.charAt(0)}</AvatarFallback>
+              </Avatar>
+            )}
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">{profile.name}</h1>
               <p className="text-primary font-medium">{profile.fraternity}</p>
