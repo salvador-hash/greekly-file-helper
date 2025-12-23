@@ -20,9 +20,9 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const success = await login(email, password);
+    const result = await login(email, password);
     
-    if (success) {
+    if (result.success) {
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",
@@ -31,7 +31,7 @@ const Login = () => {
     } else {
       toast({
         title: "Login failed",
-        description: "Invalid email or password. Try: sarah@example.com / password123",
+        description: result.error || "Invalid email or password.",
         variant: "destructive",
       });
     }
@@ -130,13 +130,6 @@ const Login = () => {
               )}
             </Button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-accent/10 rounded-xl border border-accent/20">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-accent">Demo:</span> sarah@example.com / password123
-            </p>
-          </div>
 
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-muted-foreground">
