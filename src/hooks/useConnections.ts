@@ -85,6 +85,28 @@ export const usePendingRequests = () => {
   });
 };
 
+// Hook to get sent connection requests (requests FROM current user)
+export const useSentRequests = () => {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['connectionRequests', 'sent', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('connection_requests')
+        .select('*')
+        .eq('from_user_id', user.id)
+        .eq('status', 'pending');
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+};
+
 export const useSendConnectionRequest = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();

@@ -9,7 +9,7 @@ import { FRATERNITIES, INDUSTRIES } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useProfiles } from '@/hooks/useProfiles';
-import { useConnections, usePendingRequests, useSendConnectionRequest } from '@/hooks/useConnections';
+import { useConnections, usePendingRequests, useSentRequests, useSendConnectionRequest } from '@/hooks/useConnections';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -27,20 +27,25 @@ const Search = () => {
 
   const { data: connections } = useConnections();
   const { data: pendingRequests } = usePendingRequests();
+  const { data: sentRequests } = useSentRequests();
   const sendRequest = useSendConnectionRequest();
-
-  // Get sent requests (requests from current user)
-  const { data: sentRequests } = usePendingRequests();
 
   // Filter out the current user from results
   const filteredUsers = profiles?.filter(p => p.id !== user?.id) || [];
 
   // Check connection status for a user
-  const getConnectionStatus = (userId: string): 'connected' | 'pending' | 'none' => {
+  const getConnectionStatus = (userId: string): 'connected' | 'pending_sent' | 'pending_received' | 'none' => {
     if (connections?.some(c => c.profile?.id === userId)) {
       return 'connected';
     }
-    // Check if we sent them a request - need to query sent requests separately
+    // Check if we sent them a request
+    if (sentRequests?.some(r => r.to_user_id === userId)) {
+      return 'pending_sent';
+    }
+    // Check if they sent us a request
+    if (pendingRequests?.some(r => r.from_user_id === userId)) {
+      return 'pending_received';
+    }
     return 'none';
   };
 
@@ -141,6 +146,14 @@ const Search = () => {
                   {status === 'connected' ? (
                     <Button size="sm" variant="secondary" className="shrink-0" disabled>
                       <Check className="h-4 w-4 mr-1" /> Conectado
+                    </Button>
+                  ) : status === 'pending_sent' ? (
+                    <Button size="sm" variant="outline" className="shrink-0" disabled>
+                      <Clock className="h-4 w-4 mr-1" /> Pendiente
+                    </Button>
+                  ) : status === 'pending_received' ? (
+                    <Button size="sm" variant="default" className="shrink-0" asChild>
+                      <Link to="/connections">Ver solicitud</Link>
                     </Button>
                   ) : (
                     <Button 
