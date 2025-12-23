@@ -36,7 +36,7 @@ const VerifyOtp = () => {
   }, [countdown, canResend]);
 
   const handleVerify = async () => {
-    if (otp.length !== 6) return;
+    if (otp.length !== 8) return;
     
     setIsLoading(true);
     const result = await verifyOtp(email, otp);
@@ -115,7 +115,7 @@ const VerifyOtp = () => {
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2">Ingresa el código</h2>
           <p className="text-muted-foreground">
-            Enviamos un código de 6 dígitos a{' '}
+            Enviamos un código de 8 dígitos a{' '}
             <span className="font-medium text-foreground">{email}</span>
           </p>
         </div>
@@ -123,17 +123,19 @@ const VerifyOtp = () => {
         {/* OTP Input */}
         <div className="flex justify-center mb-8">
           <InputOTP
-            maxLength={6}
+            maxLength={8}
             value={otp}
             onChange={setOtp}
           >
             <InputOTPGroup className="gap-2">
-              <InputOTPSlot index={0} className="w-12 h-14 text-xl border-border bg-secondary/50" />
-              <InputOTPSlot index={1} className="w-12 h-14 text-xl border-border bg-secondary/50" />
-              <InputOTPSlot index={2} className="w-12 h-14 text-xl border-border bg-secondary/50" />
-              <InputOTPSlot index={3} className="w-12 h-14 text-xl border-border bg-secondary/50" />
-              <InputOTPSlot index={4} className="w-12 h-14 text-xl border-border bg-secondary/50" />
-              <InputOTPSlot index={5} className="w-12 h-14 text-xl border-border bg-secondary/50" />
+              <InputOTPSlot index={0} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={1} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={2} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={3} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={4} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={5} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={6} className="w-10 h-12 text-lg border-border bg-secondary/50" />
+              <InputOTPSlot index={7} className="w-10 h-12 text-lg border-border bg-secondary/50" />
             </InputOTPGroup>
           </InputOTP>
         </div>
@@ -141,7 +143,7 @@ const VerifyOtp = () => {
         {/* Verify Button */}
         <Button
           onClick={handleVerify}
-          disabled={otp.length !== 6 || isLoading}
+          disabled={otp.length !== 8 || isLoading}
           className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
