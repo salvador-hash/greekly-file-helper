@@ -143,26 +143,26 @@ USING (auth.uid() = user_id OR auth.uid() = connected_user_id);
 CREATE POLICY "Users can view own connection requests"
 ON public.connection_requests FOR SELECT
 TO authenticated
-USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+USING (auth.uid() = from_user_id OR auth.uid() = to_user_id);
 
 -- Users can send connection requests
 CREATE POLICY "Users can send connection requests"
 ON public.connection_requests FOR INSERT
 TO authenticated
-WITH CHECK (auth.uid() = sender_id);
+WITH CHECK (auth.uid() = from_user_id);
 
 -- Users can update requests sent to them (accept/reject)
 CREATE POLICY "Users can update received requests"
 ON public.connection_requests FOR UPDATE
 TO authenticated
-USING (auth.uid() = receiver_id)
-WITH CHECK (auth.uid() = receiver_id);
+USING (auth.uid() = to_user_id)
+WITH CHECK (auth.uid() = to_user_id);
 
 -- Users can delete their own sent requests
 CREATE POLICY "Users can delete own sent requests"
 ON public.connection_requests FOR DELETE
 TO authenticated
-USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+USING (auth.uid() = from_user_id OR auth.uid() = to_user_id);
 
 -- =========================================
 -- MESSAGES POLICIES
