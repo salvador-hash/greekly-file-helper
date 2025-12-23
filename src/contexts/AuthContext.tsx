@@ -1,169 +1,187 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '@/types';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import type { Profile } from '@/lib/database.types';
 
 interface AuthContextType {
-  currentUser: User | null;
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: Partial<User> & { password: string }) => Promise<boolean>;
-  logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<Profile>) => Promise<{ success: boolean; error?: string }>;
+  refreshProfile: () => Promise<void>;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+  name: string;
+  university?: string;
+  fraternity?: string;
+  gradYear?: number;
+  industry?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const MOCK_USERS: (User & { password: string })[] = [
-  {
-    id: '1',
-    name: 'Sarah Mitchell',
-    email: 'sarah@example.com',
-    password: 'password123',
-    university: 'University of Texas',
-    fraternity: 'Kappa Kappa Gamma',
-    gradYear: 2022,
-    industry: 'Technology',
-    bio: 'Software Engineer passionate about building products that make a difference. Always looking to connect with fellow Greeks!',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
-    location: 'Austin, TX',
-    connections: ['2', '3', '4'],
-    pendingConnections: [],
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    email: 'michael@example.com',
-    password: 'password123',
-    university: 'Stanford University',
-    fraternity: 'Sigma Chi',
-    gradYear: 2021,
-    industry: 'Finance',
-    bio: 'Investment banker at Goldman Sachs. Stanford Sigma Chi alum. Love helping brothers navigate their careers.',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    location: 'New York, NY',
-    connections: ['1', '3'],
-    pendingConnections: [],
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    email: 'emily@example.com',
-    password: 'password123',
-    university: 'UCLA',
-    fraternity: 'Delta Gamma',
-    gradYear: 2023,
-    industry: 'Marketing',
-    bio: 'Marketing Manager at a tech startup. UCLA Delta Gamma. Passionate about brand storytelling and Greek life.',
-    avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    location: 'Los Angeles, CA',
-    connections: ['1', '2'],
-    pendingConnections: [],
-  },
-  {
-    id: '4',
-    name: 'James Thompson',
-    email: 'james@example.com',
-    password: 'password123',
-    university: 'University of Michigan',
-    fraternity: 'Beta Theta Pi',
-    gradYear: 2020,
-    industry: 'Consulting',
-    bio: 'Strategy Consultant at McKinsey. Michigan Beta alum. Love mentoring young professionals.',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-    location: 'Chicago, IL',
-    connections: ['1'],
-    pendingConnections: [],
-  },
-  {
-    id: '5',
-    name: 'Ashley Williams',
-    email: 'ashley@example.com',
-    password: 'password123',
-    university: 'Duke University',
-    fraternity: 'Alpha Chi Omega',
-    gradYear: 2022,
-    industry: 'Healthcare',
-    bio: 'Medical student at Johns Hopkins. Duke Alpha Chi Omega. Balancing medicine and Greek connections.',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-    location: 'Baltimore, MD',
-    connections: [],
-    pendingConnections: ['1'],
-  },
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem('greeklink_user');
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return null;
     }
-    setIsLoading(false);
+    return data;
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      const profileData = await fetchProfile(user.id);
+      setProfile(profileData);
+    }
+  };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Defer profile fetch with setTimeout to avoid deadlock
+        if (session?.user) {
+          setTimeout(() => {
+            fetchProfile(session.user.id).then(setProfile);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfile(session.user.id).then(profileData => {
+          setProfile(profileData);
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const user = MOCK_USERS.find(u => u.email === email && u.password === password);
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      setCurrentUser(userWithoutPassword);
-      localStorage.setItem('greeklink_user', JSON.stringify(userWithoutPassword));
-      return true;
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
     }
-    return false;
   };
 
-  const register = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
-    // Check if email exists
-    if (MOCK_USERS.some(u => u.email === userData.email)) {
-      return false;
+  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: userData.name,
+            university: userData.university,
+            fraternity: userData.fraternity,
+            grad_year: userData.gradYear,
+            industry: userData.industry,
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data.user && !data.session) {
+        return { success: true, error: 'Please check your email to confirm your account.' };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
     }
-    
-    const newUser: User = {
-      id: String(Date.now()),
-      name: userData.name || '',
-      email: userData.email || '',
-      university: userData.university || '',
-      fraternity: userData.fraternity || '',
-      gradYear: userData.gradYear || new Date().getFullYear(),
-      industry: userData.industry || '',
-      bio: userData.bio || '',
-      avatarUrl: '',
-      location: userData.location || '',
-      connections: [],
-      pendingConnections: [],
-    };
-    
-    setCurrentUser(newUser);
-    localStorage.setItem('greeklink_user', JSON.stringify(newUser));
-    return true;
   };
 
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('greeklink_user');
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setProfile(null);
   };
 
-  const updateUser = (updates: Partial<User>) => {
-    if (currentUser) {
-      const updated = { ...currentUser, ...updates };
-      setCurrentUser(updated);
-      localStorage.setItem('greeklink_user', JSON.stringify(updated));
+  const updateProfile = async (updates: Partial<Profile>): Promise<{ success: boolean; error?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      await refreshProfile();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
     }
   };
 
   return (
     <AuthContext.Provider value={{
-      currentUser,
-      isAuthenticated: !!currentUser,
+      user,
+      session,
+      profile,
+      isAuthenticated: !!session,
       isLoading,
       login,
       register,
       logout,
-      updateUser,
+      updateProfile,
+      refreshProfile,
     }}>
       {children}
     </AuthContext.Provider>
@@ -177,6 +195,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-// Export mock users for other components
-export const getMockUsers = () => MOCK_USERS.map(({ password, ...user }) => user);

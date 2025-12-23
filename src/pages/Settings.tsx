@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { LogOut, User, Bell, Shield } from 'lucide-react';
 
 const Settings = () => {
-  const { currentUser, logout } = useAuth();
+  const { profile, logout } = useAuth();
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -14,9 +14,9 @@ const Settings = () => {
       <div className="card-premium p-6 space-y-4">
         <div className="flex items-center gap-3 mb-4"><User className="h-5 w-5 text-primary" /><h2 className="font-semibold text-foreground">Account Information</h2></div>
         <div className="grid gap-4">
-          <div><Label>Name</Label><Input defaultValue={currentUser?.name} className="mt-1 bg-secondary/50" /></div>
-          <div><Label>Email</Label><Input defaultValue={currentUser?.email} className="mt-1 bg-secondary/50" /></div>
-          <div><Label>University</Label><Input defaultValue={currentUser?.university} className="mt-1 bg-secondary/50" /></div>
+          <div><Label>Name</Label><Input defaultValue={profile?.name} className="mt-1 bg-secondary/50" /></div>
+          <div><Label>Email</Label><Input defaultValue={profile?.email} className="mt-1 bg-secondary/50" /></div>
+          <div><Label>University</Label><Input defaultValue={profile?.university || ''} className="mt-1 bg-secondary/50" /></div>
         </div>
         <Button className="mt-4">Save Changes</Button>
       </div>

@@ -4,45 +4,23 @@ import { Heart, MessageCircle, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth, getMockUsers } from '@/contexts/AuthContext';
-import { Post } from '@/types';
-
-const MOCK_POSTS: Post[] = [
-  {
-    id: '1',
-    authorId: '2',
-    content: 'Just landed my dream job at Goldman Sachs! Grateful for all the brothers who helped me along the way. The Greek network is truly invaluable. 🎉',
-    createdAt: new Date(Date.now() - 3600000),
-    likes: ['1', '3', '4'],
-    comments: [
-      { id: '1', userId: '3', text: 'Congratulations! Well deserved! 🙌', createdAt: new Date(Date.now() - 1800000) }
-    ],
-  },
-  {
-    id: '2',
-    authorId: '3',
-    content: 'Looking for Delta Gamma sisters in the LA tech scene! Would love to connect and grab coffee. DM me! ☕',
-    createdAt: new Date(Date.now() - 86400000),
-    likes: ['1', '2'],
-    comments: [],
-  },
-];
+import { useAuth } from '@/contexts/AuthContext';
 
 const Home = () => {
-  const { currentUser } = useAuth();
-  const users = getMockUsers();
-  const [posts, setPosts] = useState(MOCK_POSTS);
+  const { profile } = useAuth();
+  const [posts, setPosts] = useState<any[]>([]);
   const [newPost, setNewPost] = useState('');
 
   const handlePost = () => {
-    if (!newPost.trim() || !currentUser) return;
-    const post: Post = {
+    if (!newPost.trim() || !profile) return;
+    const post = {
       id: String(Date.now()),
-      authorId: currentUser.id,
+      authorId: profile.id,
       content: newPost,
       createdAt: new Date(),
       likes: [],
       comments: [],
+      author: profile,
     };
     setPosts([post, ...posts]);
     setNewPost('');
@@ -50,20 +28,18 @@ const Home = () => {
 
   const toggleLike = (postId: string) => {
     setPosts(posts.map(post => {
-      if (post.id === postId && currentUser) {
-        const liked = post.likes.includes(currentUser.id);
+      if (post.id === postId && profile) {
+        const liked = post.likes.includes(profile.id);
         return {
           ...post,
           likes: liked 
-            ? post.likes.filter(id => id !== currentUser.id)
-            : [...post.likes, currentUser.id]
+            ? post.likes.filter((id: string) => id !== profile.id)
+            : [...post.likes, profile.id]
         };
       }
       return post;
     }));
   };
-
-  const getUser = (id: string) => users.find(u => u.id === id);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -76,8 +52,8 @@ const Home = () => {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-premium p-4">
         <div className="flex gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={currentUser?.avatarUrl} />
-            <AvatarFallback className="bg-primary/10 text-primary">{currentUser?.name?.charAt(0)}</AvatarFallback>
+            <AvatarImage src={profile?.avatar_url || ''} />
+            <AvatarFallback className="bg-primary/10 text-primary">{profile?.name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <Textarea
@@ -97,39 +73,44 @@ const Home = () => {
 
       {/* Posts */}
       <div className="space-y-4">
-        {posts.map((post, i) => {
-          const author = getUser(post.authorId);
-          const isLiked = currentUser && post.likes.includes(currentUser.id);
-          return (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="card-premium p-5"
-            >
-              <div className="flex gap-3 mb-3">
-                <Avatar className="h-11 w-11">
-                  <AvatarImage src={author?.avatarUrl} />
-                  <AvatarFallback className="bg-primary/10 text-primary">{author?.name?.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-foreground">{author?.name}</p>
-                  <p className="text-sm text-muted-foreground">{author?.fraternity} · {author?.university}</p>
+        {posts.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No posts yet. Be the first to share something!
+          </div>
+        ) : (
+          posts.map((post, i) => {
+            const isLiked = profile && post.likes.includes(profile.id);
+            return (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="card-premium p-5"
+              >
+                <div className="flex gap-3 mb-3">
+                  <Avatar className="h-11 w-11">
+                    <AvatarImage src={post.author?.avatar_url} />
+                    <AvatarFallback className="bg-primary/10 text-primary">{post.author?.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-foreground">{post.author?.name}</p>
+                    <p className="text-sm text-muted-foreground">{post.author?.fraternity} · {post.author?.university}</p>
+                  </div>
                 </div>
-              </div>
-              <p className="text-foreground mb-4">{post.content}</p>
-              <div className="flex items-center gap-4 pt-3 border-t border-border">
-                <Button variant="ghost" size="sm" onClick={() => toggleLike(post.id)} className={isLiked ? 'text-destructive' : 'text-muted-foreground'}>
-                  <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} /> {post.likes.length}
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
-                  <MessageCircle className="h-4 w-4 mr-1" /> {post.comments.length}
-                </Button>
-              </div>
-            </motion.div>
-          );
-        })}
+                <p className="text-foreground mb-4">{post.content}</p>
+                <div className="flex items-center gap-4 pt-3 border-t border-border">
+                  <Button variant="ghost" size="sm" onClick={() => toggleLike(post.id)} className={isLiked ? 'text-destructive' : 'text-muted-foreground'}>
+                    <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} /> {post.likes.length}
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                    <MessageCircle className="h-4 w-4 mr-1" /> {post.comments.length}
+                  </Button>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </div>
   );

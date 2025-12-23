@@ -5,20 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getMockUsers } from '@/contexts/AuthContext';
 import { FRATERNITIES, INDUSTRIES } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
 const Search = () => {
-  const users = getMockUsers();
   const [query, setQuery] = useState('');
   const [fratFilter, setFratFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
+  const users: any[] = []; // Will be populated from Supabase
 
   const filteredUsers = users.filter(user => {
-    const matchesQuery = user.name.toLowerCase().includes(query.toLowerCase()) || 
-                        user.university.toLowerCase().includes(query.toLowerCase());
+    const matchesQuery = user.name?.toLowerCase().includes(query.toLowerCase()) || 
+                        user.university?.toLowerCase().includes(query.toLowerCase());
     const matchesFrat = !fratFilter || user.fraternity === fratFilter;
     const matchesIndustry = !industryFilter || user.industry === industryFilter;
     return matchesQuery && matchesFrat && matchesIndustry;
@@ -67,8 +66,8 @@ const Search = () => {
           <motion.div key={user.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card-premium p-4 hover-lift">
             <div className="flex gap-4">
               <Avatar className="h-14 w-14 ring-2 ring-primary/10">
-                <AvatarImage src={user.avatarUrl} />
-                <AvatarFallback className="bg-primary/10 text-primary text-lg">{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={user.avatar_url} />
+                <AvatarFallback className="bg-primary/10 text-primary text-lg">{user.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <Link to={`/profile/${user.id}`} className="font-semibold text-foreground hover:text-primary transition-colors">{user.name}</Link>
@@ -87,7 +86,7 @@ const Search = () => {
         ))}
       </div>
       {filteredUsers.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">No members found matching your criteria.</div>
+        <div className="text-center py-12 text-muted-foreground">No members found. Try adjusting your search criteria.</div>
       )}
     </div>
   );
