@@ -16,13 +16,13 @@ const Connections = () => {
     try {
       await respondToRequest.mutateAsync({ requestId, accept });
       toast({
-        title: accept ? "Conexión aceptada" : "Solicitud rechazada",
-        description: accept ? `Ahora estás conectado con ${name}` : `Has rechazado la solicitud de ${name}`,
+        title: accept ? "Connection accepted" : "Connection rejected",
+        description: accept ? `You are now connected with ${name}` : `You have rejected the request from ${name}`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo procesar la solicitud",
+        description: "The request could not be processed.",
         variant: "destructive",
       });
     }
@@ -35,13 +35,13 @@ const Connections = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Conexiones</h1>
-        <p className="text-muted-foreground">Gestiona tu red de contactos</p>
+        <h1 className="text-2xl font-bold text-foreground">Connections</h1>
+        <p className="text-muted-foreground">Manage your network of contacts</p>
       </div>
       
       {/* Pending Requests */}
       <div className="card-premium p-4">
-        <h2 className="font-semibold text-foreground mb-3">Solicitudes Pendientes</h2>
+        <h2 className="font-semibold text-foreground mb-3">Pending Requests</h2>
         {loadingRequests ? (
           <div className="space-y-3">
             {[1, 2].map(i => (
@@ -100,14 +100,14 @@ const Connections = () => {
           </div>
         ) : (
           <div className="text-center py-4 text-muted-foreground text-sm">
-            No hay solicitudes pendientes
+            There are no pending requests.
           </div>
         )}
       </div>
 
       {/* Your Connections */}
       <div className="card-premium p-4">
-        <h2 className="font-semibold text-foreground mb-3">Tus Conexiones</h2>
+        <h2 className="font-semibold text-foreground mb-3">Your Connections</h2>
         {loadingConnections ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
@@ -153,7 +153,7 @@ const Connections = () => {
           </div>
         ) : (
           <div className="text-center py-4 text-muted-foreground text-sm">
-            No tienes conexiones aún. ¡Busca miembros en la página de Búsqueda!
+            You don't have any connections yet. Search for members on the Search page!
           </div>
         )}
       </div>
