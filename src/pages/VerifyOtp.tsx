@@ -44,13 +44,13 @@ const VerifyOtp = () => {
     if (result.success) {
       toast({
         title: "¡Bienvenido a GreekLink!",
-        description: "Tu cuenta ha sido verificada exitosamente.",
+        description: "Your account has been successfully verified.",
       });
       navigate('/home');
     } else {
       toast({
-        title: "Código inválido",
-        description: result.error || "El código ingresado no es correcto. Intenta de nuevo.",
+        title: "Invalid code",
+        description: result.error || "The code you entered is incorrect. Please try again.",
         variant: "destructive",
       });
       setOtp('');
@@ -66,14 +66,14 @@ const VerifyOtp = () => {
     if (result.success) {
       toast({
         title: "Código reenviado",
-        description: "Te hemos enviado un nuevo código de verificación.",
+        description: "We have sent you a new verification code.",
       });
       setCountdown(60);
       setCanResend(false);
     } else {
       toast({
-        title: "Error al reenviar",
-        description: result.error || "No pudimos reenviar el código. Intenta más tarde.",
+        title: "Error when forwarding",
+        description: result.error || "We were unable to resend the code. Please try again later.",
         variant: "destructive",
       });
     }
@@ -97,7 +97,7 @@ const VerifyOtp = () => {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver al registro
+          Back to registration
         </Link>
 
         {/* Logo */}
@@ -107,15 +107,15 @@ const VerifyOtp = () => {
           </div>
           <div>
             <h1 className="font-bold text-2xl text-foreground">GreekLink</h1>
-            <p className="text-sm text-muted-foreground">Verificación de cuenta</p>
+            <p className="text-sm text-muted-foreground">Account verification</p>
           </div>
         </div>
 
         {/* Content */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Ingresa el código</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Enter the code</h2>
           <p className="text-muted-foreground">
-            Enviamos un código de 8 dígitos a{' '}
+            We send an 8-digit code to{' '}
             <span className="font-medium text-foreground">{email}</span>
           </p>
         </div>
@@ -149,7 +149,7 @@ const VerifyOtp = () => {
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
           ) : (
-            'Verificar código'
+            'Verify code'
           )}
         </Button>
 
@@ -162,11 +162,11 @@ const VerifyOtp = () => {
               className="inline-flex items-center gap-2 text-primary font-medium hover:underline disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
-              Reenviar código
+              Resend code
             </button>
           ) : (
             <p className="text-muted-foreground text-sm">
-              Reenviar código en <span className="font-medium text-foreground">{countdown}s</span>
+              Resend code to <span className="font-medium text-foreground">{countdown}s</span>
             </p>
           )}
         </div>
