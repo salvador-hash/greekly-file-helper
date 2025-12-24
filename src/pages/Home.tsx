@@ -60,7 +60,7 @@ const Home = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Inicio</h1>
+        <h1 className="text-2xl font-bold text-foreground">Home</h1>
         <p className="text-muted-foreground">See what's happening on your network</p>
       </div>
 
