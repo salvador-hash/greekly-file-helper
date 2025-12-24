@@ -117,7 +117,7 @@ export const AppSidebar = () => {
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
                 <FileText className="h-3 w-3" />
-                Términos
+                Terms
               </NavLink>
               <span className="text-muted-foreground">·</span>
               <NavLink
@@ -126,7 +126,7 @@ export const AppSidebar = () => {
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
                 <Shield className="h-3 w-3" />
-                Privacidad
+                Privacy
               </NavLink>
             </div>
           </div>
