@@ -20,6 +20,9 @@ const Register = () => {
     fraternity: '',
     gradYear: '',
     industry: '',
+    major: '',
+    varsitySport: '',
+    clubs: '', // comma-separated
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +47,9 @@ const Register = () => {
     
     setIsLoading(true);
     
+    // Convert clubs comma-separated string to array (optional)
+    const clubsArray = formData.clubs.trim() ? formData.clubs.split(',').map(s => s.trim()).filter(Boolean) : undefined;
+
     const result = await register({
       name: formData.name,
       email: formData.email,
@@ -52,6 +58,9 @@ const Register = () => {
       fraternity: formData.fraternity,
       gradYear: parseInt(formData.gradYear),
       industry: formData.industry,
+      major: formData.major || undefined,
+      varsitySport: formData.varsitySport || undefined,
+      clubs: clubsArray,
     });
     
     if (result.success) {
@@ -271,12 +280,28 @@ const Register = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="col-span-2 space-y-2">
+                <Label className="text-foreground font-medium">Major</Label>
+                <Input value={formData.major} onChange={(e) => handleChange('major', e.target.value)} className="h-11 bg-secondary/50" />
+              </div>
+
+              <div className="col-span-2 space-y-2">
+                <Label className="text-foreground font-medium">Varsity Sport (optional)</Label>
+                <Input value={formData.varsitySport} onChange={(e) => handleChange('varsitySport', e.target.value)} className="h-11 bg-secondary/50" />
+              </div>
+
+              <div className="col-span-2 space-y-2">
+                <Label className="text-foreground font-medium">Clubs (comma-separated)</Label>
+                <Input value={formData.clubs} onChange={(e) => handleChange('clubs', e.target.value)} placeholder="e.g. Debate Club, Chess Club" className="h-11 bg-secondary/50" />
+              </div>
+
             </div>
 
             <Button
               type="submit"
               disabled={!isFormValid || isLoading}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />

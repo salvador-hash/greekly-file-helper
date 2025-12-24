@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { MapPin, GraduationCap, Briefcase, Calendar, Edit, MessageCircle, UserPlus, Check, X, Loader2 } from 'lucide-react';
+import { MapPin, GraduationCap, Briefcase, Calendar, Edit, MessageCircle, UserPlus, Check, X, Loader2, Plus, Trash } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfiles';
 import { useConnections, useSendConnectionRequest } from '@/hooks/useConnections';
@@ -24,6 +24,9 @@ const Profile = () => {
     bio: '',
     location: '',
     industry: '',
+    major: '',
+    varsity_sport: '',
+    clubs: [] as string[],
   });
 
   // If no id param, show current user's profile
@@ -71,6 +74,9 @@ const Profile = () => {
         bio: profile.bio || '',
         location: profile.location || '',
         industry: profile.industry || '',
+        major: profile.major || '',
+        varsity_sport: profile.varsity_sport || '',
+        clubs: profile.clubs || [],
       });
       setIsEditing(true);
     }
@@ -82,7 +88,7 @@ const Profile = () => {
       await updateProfile.mutateAsync({
         userId: user.id,
         updates: editForm,
-      });
+      } as any);
       setIsEditing(false);
       toast({
         title: "Perfil actualizado",
@@ -187,12 +193,44 @@ const Profile = () => {
                         />
                       </div>
                       <div>
-                        <Label>Location</Label>
+                        <Label>Industry</Label>
                         <Input
                           value={editForm.industry}
                           onChange={(e) => setEditForm(prev => ({ ...prev, industry: e.target.value }))}
                           className="bg-secondary/50"
                         />
+                      </div>
+                      <div>
+                        <Label>Major</Label>
+                        <Input
+                          value={editForm.major}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, major: e.target.value }))}
+                          className="bg-secondary/50"
+                        />
+                      </div>
+                      <div>
+                        <Label>Varsity Sport (optional)</Label>
+                        <Input
+                          value={editForm.varsity_sport}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, varsity_sport: e.target.value }))}
+                          className="bg-secondary/50"
+                        />
+                      </div>
+                      <div>
+                        <Label>Clubs</Label>
+                        <div className="space-y-2">
+                          {editForm.clubs.map((club, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <Input value={club} onChange={(e) => setEditForm(prev => ({ ...prev, clubs: prev.clubs.map((c, i) => i === idx ? e.target.value : c) }))} className="bg-secondary/50" />
+                              <Button variant="outline" onClick={() => setEditForm(prev => ({ ...prev, clubs: prev.clubs.filter((_, i) => i !== idx) }))}>
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                          <Button variant="ghost" onClick={() => setEditForm(prev => ({ ...prev, clubs: [...prev.clubs, ''] }))}>
+                            <Plus className="h-4 w-4 mr-2" />Add Club
+                          </Button>
+                        </div>
                       </div>
                       <div className="flex gap-2 justify-end">
                         <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -233,9 +271,14 @@ const Profile = () => {
           
           <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1"><GraduationCap className="h-4 w-4" />{profile.university}</span>
+            {profile.major && <span className="flex items-center gap-1">{profile.major}</span>}
             {profile.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile.location}</span>}
             {profile.industry && <span className="flex items-center gap-1"><Briefcase className="h-4 w-4" />{profile.industry}</span>}
             <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Clase de {profile.grad_year}</span>
+            {profile.varsity_sport && <span className="flex items-center gap-1">{profile.varsity_sport}</span>}
+            {profile.clubs && profile.clubs.length > 0 && (
+              <span className="flex items-center gap-1">Clubs: {profile.clubs.join(', ')}</span>
+            )}
           </div>
           {profile.bio && <p className="mt-4 text-foreground">{profile.bio}</p>}
         </div>

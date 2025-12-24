@@ -21,6 +21,9 @@ export interface Database {
           bio: string | null
           avatar_url: string | null
           location: string | null
+          major: string | null
+          varsity_sport: string | null
+          clubs: string[] | null
           created_at: string
           updated_at: string
           email_notifications: boolean
@@ -42,6 +45,9 @@ export interface Database {
           bio?: string | null
           avatar_url?: string | null
           location?: string | null
+          major?: string | null
+          varsity_sport?: string | null
+          clubs?: string[] | null
           created_at?: string
           updated_at?: string
           email_notifications?: boolean
@@ -63,6 +69,9 @@ export interface Database {
           bio?: string | null
           avatar_url?: string | null
           location?: string | null
+          major?: string | null
+          varsity_sport?: string | null
+          clubs?: string[] | null
           created_at?: string
           updated_at?: string
           email_notifications?: boolean
