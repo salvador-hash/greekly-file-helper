@@ -1,5 +1,5 @@
 -- =========================================
--- GreekLink - Complete RLS Policies
+-- Grikly - Complete RLS Policies
 -- Run this in your Supabase SQL Editor
 -- =========================================
 
