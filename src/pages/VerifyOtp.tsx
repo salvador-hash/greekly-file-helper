@@ -43,7 +43,7 @@ const VerifyOtp = () => {
     
     if (result.success) {
       toast({
-        title: "¡Bienvenido a GreekLink!",
+        title: "¡Welcome to Grikly!",
         description: "Your account has been successfully verified.",
       });
       navigate('/home');
@@ -106,7 +106,7 @@ const VerifyOtp = () => {
             <span className="text-primary-foreground font-bold text-2xl">Ω</span>
           </div>
           <div>
-            <h1 className="font-bold text-2xl text-foreground">GreekLink</h1>
+            <h1 className="font-bold text-2xl text-foreground">Grikly</h1>
             <p className="text-sm text-muted-foreground">Account verification</p>
           </div>
         </div>
